@@ -1,0 +1,37 @@
+extends ../layout/index
+
+block conteudo
+  .py-10
+    h1.text-4xl.my-10.font-extrabold.text-center Imóveis
+      span.font-normal Corretora
+    h2.text-center.text-2xl.font-extrabold= pagina
+
+    if erros
+      div(class="max-w-md mx-auto my-10")
+        each erro in erros 
+          p.bg-red-600.text-white.uppercase.text-xs.text-center.p-2.mb-1.font-bold=erro.msg
+
+    .mt-8.mx-auto.max-w-md 
+      .bg-white.py-8.px-4.shadow 
+        form.space-y-5(method="POST" action="/auth/cadastro" noValidate)
+          div
+            label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for = "nome") Nome 
+            input#nome.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(type = "text" name = "nome" placeholder = "Nome" value = usuario ? usuario.nome : '')
+
+          div
+            label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for = "email") E-mail 
+            input#email.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(type = "email" name = "email" placeholder = "E-mail" value = usuario ? usuario.email : '')
+
+          div
+            label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for = "password") Senha
+            input#password.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(type = "password" name = "password" placeholder = "Senha")
+          
+          div
+            label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for = "confirmar_password") Confirmar Senha
+            input#confirmar_password.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(type = "password" name = "confirmar_password" placeholder = "Confirmar Senha")
+
+          div.flex.items-center.justify-between 
+            a.text-gray-500.text-xs(href = "/auth/login") Já tem uma conta? Inicia sessão
+            a.text-gray-500.text-xs(href = "/auth/recuperar-senha") Esqueci minha senha
+
+          input(class = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 cursor-pointer" type = "submit" value = "Criar conta")

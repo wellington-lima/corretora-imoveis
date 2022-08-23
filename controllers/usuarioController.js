@@ -83,6 +83,16 @@ const confirmar = async (req, res) => {
       erro: true
     })
   }
+
+  //Confirmar conta
+  usuario.token = null
+  usuario.confirmado = true
+  await usuario.save()
+
+  res.render('auth/confirmar-conta', {
+    pagina: 'Conta confirmada',
+    mensagem: 'Conta confirmada corretamente',
+  })
 }
 
 const formularioRecuperarSenha = (req, res) => {

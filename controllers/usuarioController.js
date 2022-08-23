@@ -72,9 +72,17 @@ const cadastrar = async(req, res) => {
   })
 }
 
-const confirmar = (req, res) => {
+const confirmar = async (req, res) => {
   const { token } = req.params
-  console.log(token)
+  const usuario = await Usuario.findOne({ where: { token }})
+
+  if(!usuario) {
+    return res.render('auth/confirmar-conta', {
+      pagina: 'Erro ao confirmar sua conta',
+      mensagem: 'Houve um erro ao confirmar sua conta. Tente novamente',
+      erro: true
+    })
+  }
 }
 
 const formularioRecuperarSenha = (req, res) => {

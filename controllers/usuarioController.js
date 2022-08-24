@@ -11,7 +11,8 @@ const formularioLogin = (req, res) => {
 
 const formularioCadastro = (req, res) => {
   res.render('auth/cadastro', {
-    pagina: 'Criar conta'
+    pagina: 'Criar conta',
+    csrfToken: req.csrfToken()
   })
 }
 
@@ -27,6 +28,7 @@ const cadastrar = async(req, res) => {
   if (!resultado.isEmpty()) {
     return res.render('auth/cadastro', {
       pagina: 'Criar conta',
+      csrfToken: req.csrfToken(),
       erros: resultado.array(),
       usuario: {
         nome: req.body.nome,
@@ -41,6 +43,7 @@ const cadastrar = async(req, res) => {
   if(existeUsuario) {
     return res.render('auth/cadastro', {
       pagina: 'Criar conta',
+      csrfToken: req.csrfToken(),
       erros: [{ msg: 'Usuário já está cadastrado'}],
       usuario: {
         nome: req.body.nome,
@@ -63,7 +66,7 @@ const cadastrar = async(req, res) => {
     email: usuario.email,
     token: usuario.token
   })
-  
+ 
   
   //Mostrar mensagem de confirmação
   res.render('templates/mensagem', {

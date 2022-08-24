@@ -14,6 +14,7 @@ block conteudo
     .mt-8.mx-auto.max-w-md 
       .bg-white.py-8.px-4.shadow 
         form.space-y-5(method="POST" action="/auth/cadastro" noValidate)
+          input(type="hidden" name="_csrf" value= csrfToken)
           div
             label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for = "nome") Nome 
             input#nome.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(type = "text" name = "nome" placeholder = "Nome" value = usuario ? usuario.nome : '')

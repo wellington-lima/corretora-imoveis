@@ -1,4 +1,6 @@
 import express from 'express'
+import csrf from 'csurf'
+import cookieParser from 'cookie-parser'
 import usuarioRoutes from './routes/usuarioRoutes.js'
 import db from './config/db.js'
 
@@ -15,6 +17,12 @@ try {
 
 //Habilita para receber os dados do formulario via request
 app.use(express.urlencoded({ extended: true }))
+
+//Habilitar Cookie Parser
+app.use(cookieParser())
+
+//Habilitar CSRF
+app.use(csrf({ cookie: true }))
 
 //Habilitar pug
 app.set('view engine', 'pug')

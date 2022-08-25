@@ -100,8 +100,25 @@ const confirmar = async (req, res) => {
 
 const formularioRecuperarSenha = (req, res) => {
   res.render('auth/recuperar-senha', {
-    pagina: 'Recuperar senha'
+    pagina: 'Recuperar senha',
+    csrfToken: req.csrfToken(),
+    
   })
+}
+
+const resetPassword = async(req, res) => {
+  //Valdar campos
+  await check('email').isEmail().withMessage('Digite um e-mail válido').run(req)
+
+  let resultado = validationResult(req)
+
+  if (!resultado.isEmpty()) {
+    return res.render('auth/recuperar-senha', {
+      pagina: 'Recuperar senha',
+      csrfToken: req.csrfToken(),
+      erros: resultado.array()
+    })
+  }
 }
 
 export {
@@ -109,5 +126,6 @@ export {
   formularioCadastro,
   cadastrar,
   confirmar,
-  formularioRecuperarSenha
+  formularioRecuperarSenha,
+  resetPassword
 }

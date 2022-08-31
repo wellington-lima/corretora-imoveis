@@ -1,7 +1,8 @@
 import { check, validationResult } from 'express-validator'
+import bcrypt from 'bcrypt'
 import Usuario from '../models/Usuario.js'
 import { gerarId } from '../helpers/tokens.js'
-import { emailCacastro } from '../helpers/emails.js'
+import { emailCacastro, emailRecuperarSenha } from '../helpers/emails.js'
 
 const formularioLogin = (req, res) => {
   res.render('auth/login', { 
@@ -119,6 +120,89 @@ const resetPassword = async(req, res) => {
       erros: resultado.array()
     })
   }
+
+  //Buscar usuario
+  const { email } = req.body
+  const usuario = await Usuario.findOne({ where: { email } })
+
+  if(!usuario) {
+    return res.render('auth/recuperar-senha', {
+      pagina: 'Recuperar senha',
+      csrfToken: req.csrfToken(),
+      erros: [{ msg: 'E-mail não cadastrado' }]
+    })
+  }
+
+  //Gerar token e enviar email
+  usuario.token = gerarId()
+  await usuario.save()
+
+  //Enviar email
+  emailRecuperarSenha({
+    email: usuario.email,
+    nome: usuario.nome,
+    token: usuario.token
+  })
+
+  //Mostrar mensagem de confirmação
+  res.render('templates/mensagem', {
+    pagina: 'Redefina sua senha',
+    mensagem: 'Enviamos um email com as instruções'
+  })
+}
+
+const confirmarToken = async (req, res) => {
+  const { token } = req.params
+  const usuario = await Usuario.findOne({ where: { token }})
+
+  if (!usuario) {
+    return res.render('auth/confirmar-conta', {
+      pagina: 'Redefina sua senha',
+      mensagem: 'Houve um erro ao validar sua informação. Tente novamente',
+      erro: true
+    })
+  }
+
+  //Mostrar formulario para alterar senha
+  res.render('auth/reset-senha', {
+    pagina: 'Redefina sua senha',
+    csrfToken: req.csrfToken()
+  })
+
+}
+
+const novaSenha = async (req, res) => {
+  //Validar senha
+  await check('password').isLength({ min: 6 }).withMessage('A senha deve ter no mínimo 6 caracteres').run(req)
+
+  let resultado = validationResult(req)
+
+  if (!resultado.isEmpty()) {
+    return res.render('auth/reset-senha', {
+      pagina: 'Redefinir senha',
+      csrfToken: req.csrfToken(),
+      erros: resultado.array()
+    })
+  }
+  
+  const { token } = req.params
+  const { password } = req.body
+
+  //busca o usuário
+  const usuario = await Usuario.findOne({ where: { token }})
+
+  //Redefinir senha
+  const salt = await bcrypt.genSalt(10)
+  usuario.password = await bcrypt.hash(password, salt)
+  usuario.token = null
+
+  await usuario.save()
+
+  res.render('auth/confirmar-conta', {
+    pagina: 'Senha redefinida',
+    mensagem: 'A senha foi redefinida corretamente'
+  })
+
 }
 
 export {
@@ -127,5 +211,7 @@ export {
   cadastrar,
   confirmar,
   formularioRecuperarSenha,
-  resetPassword
+  resetPassword,
+  confirmarToken,
+  novaSenha
 }

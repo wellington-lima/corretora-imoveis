@@ -6,8 +6,57 @@ import { emailCacastro, emailRecuperarSenha } from '../helpers/emails.js'
 
 const formularioLogin = (req, res) => {
   res.render('auth/login', { 
-    pagina: 'Iniciar sessão'
+    pagina: 'Iniciar sessão',
+    csrfToken: req.csrfToken()
   })
+}
+
+const autenticar = async (req, res) => {
+  //Validar
+  await check('email').isEmail().withMessage('Digite o e-mail').run(req)
+  await check('senha').notEmpty().withMessage('Digite a senha').run(req)
+
+  let resultado = validationResult(req)
+
+  if (!resultado.isEmpty()) {
+    return res.render('auth/login', {
+      pagina: 'Iniciar sessão',
+      csrfToken: req.csrfToken(),
+      erros: resultado.array()
+    })
+  }
+
+  //Verificar se o usuario existe
+  const { email, senha } = req.body
+  const usuario = await Usuario.findOne({ where: { email }})
+
+  if(!usuario) {
+    return res.render('auth/login', {
+      pagina: 'Iniciar sessão',
+      csrfToken: req.csrfToken(),
+      erros: [{ msg: "O usuário não existe" }]
+    })
+  }
+
+  //Verificar se o usuario está confirmado
+  if(!usuario.confirmado) {
+    return res.render('auth/login', {
+      pagina: 'Iniciar sessão',
+      csrfToken: req.csrfToken(),
+      erros: [{ msg: "Sua conta não foi confirmada" }]
+    })
+  }
+
+  //Verificar password
+  if(!bcrypt.compareSync(senha, usuario.password)) {
+    return res.render('auth/login', {
+      pagina: 'Iniciar sessão',
+      csrfToken: req.csrfToken(),
+      erros: [{ msg: "A senha está incorreta" }]
+    })
+  } else { 
+    console.log('OK!!!');
+  }
 }
 
 const formularioCadastro = (req, res) => {
@@ -207,6 +256,7 @@ const novaSenha = async (req, res) => {
 
 export {
   formularioLogin,
+  autenticar,
   formularioCadastro,
   cadastrar,
   confirmar,

@@ -1,7 +1,7 @@
 import { check, validationResult } from 'express-validator'
 import bcrypt from 'bcrypt'
 import Usuario from '../models/Usuario.js'
-import { gerarId } from '../helpers/tokens.js'
+import { gerarToken, gerarId } from '../helpers/tokens.js'
 import { emailCacastro, emailRecuperarSenha } from '../helpers/emails.js'
 
 const formularioLogin = (req, res) => {
@@ -54,9 +54,17 @@ const autenticar = async (req, res) => {
       csrfToken: req.csrfToken(),
       erros: [{ msg: "A senha está incorreta" }]
     })
-  } else { 
-    console.log('OK!!!');
   }
+
+  //Autenticar o usuario
+  const token = gerarToken({ id: usuario.id, nome: usuario.nome })
+
+  //Armazenar token em cookie
+  return res.cookie('_token', token, {
+    httpOlny: true,
+    //secure: true,
+    //sameSite: true
+  }).redirect('/meus-dados')
 }
 
 const formularioCadastro = (req, res) => {

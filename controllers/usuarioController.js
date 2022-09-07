@@ -64,7 +64,7 @@ const autenticar = async (req, res) => {
     httpOlny: true,
     //secure: true,
     //sameSite: true
-  }).redirect('/meus-dados')
+  }).redirect('/minhas-propriedades')
 }
 
 const formularioCadastro = (req, res) => {
